@@ -1,3 +1,15 @@
+-- USE MASTER
+
+-- IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Ecommerce')
+-- BEGIN
+--   CREATE DATABASE Ecommerce
+-- END
+-- GO;
+
+-- USE Ecommerce
+-- GO;
+
+
 CREATE TABLE [Category] (
   [CategoryID] int,
   [CategoryName] varchar(60),
@@ -10,7 +22,7 @@ CREATE TABLE [ProductDetails] (
   [UnitTax] float,
   [Stock] int,
   [UnitsSold] int,
-  [ProductID] int not null,
+  [ProductID] int not null UNIQUE,
   PRIMARY KEY ([ProductDetailsID])
 );
 
