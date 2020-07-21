@@ -68,7 +68,7 @@ CREATE TABLE [Customer] (
   [City] varchar(30),
   [Phone] varchar(10),
   [Credit] float,
-  [OrderID] int not null FOREIGN KEY REFERENCES [Orders]([OrdersID]),
+  [OrderID] int FOREIGN KEY REFERENCES [Orders]([OrdersID]),
   PRIMARY KEY ([CustomerID])
 );
 
