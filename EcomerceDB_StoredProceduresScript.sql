@@ -206,7 +206,7 @@ ELSE
 	END
 GO
 
--- Store Procedure for Deleting Product Details
+-- Stored Procedure for Deleting Product Details
 CREATE PROCEDURE DeleteProductDetails(@id INT)
 AS
 IF (@id IS NOT NULL)
@@ -233,7 +233,7 @@ ELSE
 	END
 GO
 
---Strore procedure for creating customers
+--Strored procedure for creating customers
 CREATE PROCEDURE InsertCustomer(@id INT, @name VARCHAR(60), @lastName VARCHAR(60), @address VARCHAR(110), @country VARCHAR(30), @city VARCHAR(30), @phone VARCHAR(10), @credit FLOAT)
 AS
 	IF(@id IS NOT NULL AND @name <> '' AND @lastName <> '' AND @address <> '' AND @country <> '' AND @city <> '' AND @phone <> '' AND @credit IS NOT NULL)
@@ -259,7 +259,7 @@ ELSE
 	END
 GO
 
---Store procedure for updating customer
+--Stored procedure for updating customer
 CREATE PROCEDURE UpdateCustomer(@id INT, @name VARCHAR(60), @lastName VARCHAR(60), @address VARCHAR(110), @country VARCHAR(30), @city VARCHAR(30), @phone VARCHAR(10), @credit FLOAT)
 AS
 	IF(@id IS NOT NULL AND @name <> '' AND @lastName <> '' AND @address <> '' AND @country <> '' AND @city <> '' AND @phone <> '' AND @credit IS NOT NULL)
@@ -286,7 +286,7 @@ ELSE
 	END
 GO
 
---Store procedure for deleting customer
+--Stored procedure for deleting customer
 CREATE PROCEDURE DeleteCustomer(@id INT)
 AS
 	IF (@id IS NOT NULL)
@@ -309,6 +309,103 @@ AS
 	ELSE
 		BEGIN
 			PRINT 'null input detected, please type the right value'
+		END
+GO
+
+
+-- Function for calculating order total
+CREATE FUNCTION GetTotal(@productName VARCHAR(100), @orderQuantity INT)
+	RETURNS TABLE
+	AS
+		RETURN (
+			SELECT Product.ProductID, ProductDetails.UnitPrice, (ProductDetails.UnitTax * @orderQuantity) AS TotalTax, ((ProductDetails.UnitTax * @orderQuantity) + (ProductDetails.UnitPrice * @orderQuantity)) AS TotalOrder 
+			FROM Product INNER JOIN ProductDetails 
+			ON Product.ProductID = ProductDetails.ProductID 
+			WHERE Product.ProductName = @productName AND ProductDetails.Stock >= @orderQuantity
+		)
+	GO;
+
+--stored procedure for Adding Orders
+CREATE PROCEDURE AddOrder(@id INT, @customerId INT, @Quantity INT, @Name VARCHAR(100), @orderAddress VARCHAR(60))
+AS
+	IF(@id IS NOT NULL AND @customerId IS NOT NULL AND @Quantity IS NOT NULL AND @Name <> '' AND @orderAddress <> '')
+		BEGIN
+			BEGIN TRY
+				IF((SELECT COUNT(*) FROM GetTotal(@Name, @Quantity)) = 0)
+					BEGIN
+						Print 'Wrong data or product out of stock'
+					END
+				ELSE
+					DECLARE @tempTaxes FLOAT
+					DECLARE @tempTotal FLOAT
+					DECLARE @productId INT
+					SET @tempTaxes = (SELECT TotalTax FROM GetTotal(@Name, @Quantity))
+					SET @tempTotal = (SELECT TotalOrder FROM GetTotal(@Name, @Quantity))
+					SET @productId = (SELECT ProductID FROM GetTotal(@Name, @Quantity))
+					BEGIN
+						INSERT INTO Orders(OrdersID, CustomerID, OrderAddress)
+						VALUES(@id, @customerId, @orderAddress)
+
+						INSERT INTO OrderDetails(OrderDetailsID, ProductID, DetailPrice, DetailQuantity, DetailTaxes, OrderID, DetailName)
+						VALUES (@id, @productId, @tempTotal, @tempTotal, @Quantity, @id, @Name)
+
+						UPDATE Orders
+						SET OrderTax = (SELECT SUM(DetailTaxes) FROM OrderDetails WHERE ProductID = @id),
+						OrderTotal = (SELECT SUM(DetailPrice) FROM OrderDetails WHERE ProductID = @id)
+
+						UPDATE ProductDetails
+						SET Stock = (SELECT Stock FROM Product) - @Quantity,
+						UnitsSold = (SELECT UnitsSold FROM ProductDetails) + @Quantity 
+
+					END
+			END TRY
+			BEGIN CATCH
+				SELECT 
+				ERROR_NUMBER() AS ErrorNumber,
+				ERROR_SEVERITY() AS ErrorSeverity,
+				ERROR_STATE() AS ErrorState,
+				ERROR_PROCEDURE() AS ErrorProcedure,
+				ERROR_LINE() AS ErrorLine,
+				ERROR_MESSAGE() AS ErrorMessage
+			END CATCH
+		END
+	ELSE
+		BEGIN
+			PRINT 'NULL input detected, please type the right value' 
+		END
+GO
+
+-- Stored procedure for Adding Order Details
+CREATE PROCEDURE AddOrderDetails(@id INT, @orderQuantity INT, @productName VARCHAR(100), @orderId INT)
+AS
+	DECLARE @ProductID INT
+	DECLARE @tempTotal FLOAT
+	DECLARE @tempTaxes FLOAT
+	IF(@id IS NOT NULL AND @orderQuantity IS NOT NULL AND @orderId IS NOT NULL AND @productName <> '')
+		
+
+		SET @ProductID = (SELECT ProductID FROM GetTotal(@productName, @orderQuantity))
+		SET @tempTotal = (SELECT TotalOrder FROM GetTotal(@productName, @orderQuantity))
+		SET @tempTaxes = (SELECT TotalTax FROM GetTotal(@productName, @orderQuantity))
+
+		BEGIN
+			BEGIN TRY
+				INSERT INTO OrderDetails (OrderDetailsID, ProductID, DetailName, DetailPrice, DetailQuantity, DetailTaxes, OrderID)
+				VALUES (@id, @ProductID, @productName, @tempTotal, @orderQuantity, @tempTaxes, @orderId)
+			END TRY
+			BEGIN CATCH
+				SELECT 
+				ERROR_NUMBER() AS ErrorNumber,
+				ERROR_SEVERITY() AS ErrorSeverity,
+				ERROR_STATE() AS ErrorState,
+				ERROR_PROCEDURE() AS ErrorProcedure,
+				ERROR_LINE() AS ErrorLine,
+				ERROR_MESSAGE() AS ErrorMessage
+			END CATCH
+		END
+	ELSE
+		BEGIN
+			PRINT 'Null Input detected, please input the right values'
 		END
 GO
 
