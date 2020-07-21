@@ -30,7 +30,7 @@ CREATE TABLE [Product] (
   [ProductID] int,
   [ProductName] varchar(100),
   [CategoryID] int,
-  [ProductDetailsID] int not null FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
+  [ProductDetailsID] int not null UNIQUE FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
   [ProductCategoryID] int not null FOREIGN KEY REFERENCES [Category]([CategoryID]), 
   PRIMARY KEY ([ProductID])
 );
@@ -74,6 +74,3 @@ CREATE TABLE [Customer] (
 
 
 
-ALTER TABLE [ProductDetails]
-ADD CONSTRAINT FK__ProductDetails__Product FOREIGN KEY ([ProductID])
-  REFERENCES [Product]([ProductID])
