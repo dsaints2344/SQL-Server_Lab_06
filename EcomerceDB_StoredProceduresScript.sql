@@ -350,8 +350,9 @@ AS
 						VALUES (@id, @productId, @tempTotal, @tempTotal, @Quantity, @id, @Name)
 
 						UPDATE Orders
-						SET OrderTax = (SELECT SUM(DetailTaxes) FROM OrderDetails WHERE ProductID = @id),
-						OrderTotal = (SELECT SUM(DetailPrice) FROM OrderDetails WHERE ProductID = @id)
+						SET OrderTax = (SELECT SUM(DetailTaxes) FROM OrderDetails WHERE OrderID = @id),
+						OrderTotal = (SELECT SUM(DetailPrice) FROM OrderDetails WHERE OrderID = @id)
+						WHERE OrdersID = @id
 
 						UPDATE ProductDetails
 						SET Stock = (SELECT Stock FROM Product) - @Quantity,
@@ -409,3 +410,30 @@ AS
 		END
 GO
 
+-- Store procedure for recalculating order total and taxes
+CREATE PROCEDURE RecalculateOrderTotals(@orderId INT)
+	AS
+		IF(@orderId IS NOT NULL)
+			BEGIN
+				BEGIN TRY
+					UPDATE Orders
+						SET OrderTax = (SELECT SUM(DetailTaxes) FROM OrderDetails WHERE OrderID = @orderId),
+						OrderTotal = (SELECT SUM(DetailPrice) FROM OrderDetails WHERE OrderID = @orderId)
+						WHERE OrdersID = @orderId
+				END TRY
+				BEGIN CATCH
+					SELECT 
+						ERROR_NUMBER() AS ErrorNumber,
+						ERROR_SEVERITY() AS ErrorSeverity,
+						ERROR_STATE() AS ErrorState,
+						ERROR_PROCEDURE() AS ErrorProcedure,
+						ERROR_LINE() AS ErrorLine,
+						ERROR_MESSAGE() AS ErrorMessage
+				END CATCH
+			END
+		ELSE
+			BEGIN
+				PRINT 'Null Input detected, please input the right values'
+			END
+GO
+		
