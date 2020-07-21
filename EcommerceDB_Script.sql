@@ -3,7 +3,48 @@ CREATE TABLE [Category] (
   [CategoryName] varchar(60),
   PRIMARY KEY ([CategoryID])
 );
-GO;
+
+CREATE TABLE [ProductDetails] (
+  [ProductDetailsID] int,
+  [UnitPrice] float,
+  [UnitTax] float,
+  [Stock] int,
+  [UnitsSold] int,
+  [ProductID] int not null,
+  PRIMARY KEY ([ProductDetailsID])
+);
+
+CREATE TABLE [Product] (
+  [ProductID] int,
+  [ProductName] varchar(100),
+  [CategoryID] int,
+  [ProductDetailsID] int not null FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
+  [ProductCategoryID] int not null FOREIGN KEY REFERENCES [Category]([CategoryID]), 
+  PRIMARY KEY ([ProductID])
+);
+
+
+CREATE TABLE [Orders] (
+  [OrdersID] int,
+  [CustomerID] int,
+  [OrderDetailsID] int,
+  [OrderAmount] float,
+  [OrderAddress] varchar(60),
+  [OrderTax] float,
+  [OrderTotal] float,
+  PRIMARY KEY ([OrdersID])
+);
+
+CREATE TABLE [OrderDetails] (
+  [OrderDetailsID] int,
+  [ProductID] int not null FOREIGN KEY REFERENCES [Product]([ProductID]),
+  [DetailName] varchar(50),
+  [DetailPrice] float,
+  [DetailQuantity] int,
+  [OrderID] int not null FOREIGN KEY REFERENCES [Orders]([OrdersID]),
+  PRIMARY KEY ([OrderDetailsID])
+);
+
 
 
 CREATE TABLE [Customer] (
@@ -15,52 +56,12 @@ CREATE TABLE [Customer] (
   [City] varchar(30),
   [Phone] varchar(10),
   [Credit] float,
+  [OrderID] int not null FOREIGN KEY REFERENCES [Orders]([OrdersID]),
   PRIMARY KEY ([CustomerID])
 );
 
-GO;
 
-CREATE TABLE [ProductDetails] (
-  [ProductDetailsID] int,
-  [UnitPrice] float,
-  [UnitTax] float,
-  [Stock] int,
-  [UnitsSold] int,
-  PRIMARY KEY ([ProductDetailsID])
-);
 
-CREATE TABLE [Orders] (
-  [OrderID] int,
-  [CustomerID] int FOREIGN KEY REFERENCES [Customer]([CustomerID]),
-  [OrderDetailsID] int FOREIGN KEY REFERENCES [OrderDetails]([OrderID]),
-  [OrderAmount] float,
-  [OrderAddress] varchar(60),
-  [OrderTax] float,
-  [Freight] float,
-  [OrderTotal] float,
-  PRIMARY KEY ([OrderID]),
-);
-CREATE INDEX [FK] ON  [Orders] ([CustomerID], [OrderDetailsID]);
-GO;
-
-CREATE TABLE [OrderDetails] (
-  [OrderID] int FOREIGN KEY REFERENCES [Orders]([OrderID]),
-  [ProductDetailsID] int FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
-  [DetailName] varchar(50),
-  [DetailPrice] float,
-  [DetailQuantity] int,
-  PRIMARY KEY ([OrderID]),
-);
-
-CREATE INDEX [FK] ON  [OrderDetails] ([ProductDetailsID], [OrderID]);
-GO;
-
-CREATE TABLE [Product] (
-  [ProductID] int,
-  [ProductName] varchar(100),
-  [CategoryID] int FOREIGN KEY REFERENCES [Category]([CategoryID]),
-  [ProductDetailsID] int   FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
-  PRIMARY KEY ([ProductID]),
-);
-
-CREATE INDEX [FK] ON  [Product] ([CategoryID], [ProductDetailsID]);
+ALTER TABLE [ProductDetails]
+ADD CONSTRAINT FK__ProductDetails__Product FOREIGN KEY ([ProductID])
+  REFERENCES [Product]([ProductID])
