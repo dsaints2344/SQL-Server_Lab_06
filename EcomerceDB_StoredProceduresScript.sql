@@ -232,3 +232,83 @@ ELSE
 	PRINT 'null input detected, please type the right value'
 	END
 GO
+
+--Strore procedure for creating customers
+CREATE PROCEDURE InsertCustomer(@id INT, @name VARCHAR(60), @lastName VARCHAR(60), @address VARCHAR(110), @country VARCHAR(30), @city VARCHAR(30), @phone VARCHAR(10), @credit FLOAT)
+AS
+	IF(@id IS NOT NULL AND @name <> '' AND @lastName <> '' AND @address <> '' AND @country <> '' AND @city <> '' AND @phone <> '' AND @credit IS NOT NULL)
+		BEGIN
+		BEGIN TRY
+			INSERT INTO Customer(CustomerID, Name, LastName, Address, Country, City, Credit)
+			VALUES(@id, @name, @lastName, @address, @country, @city, @credit)
+			SELECT * FROM Customer
+		END TRY
+		BEGIN CATCH
+			SELECT 
+			ERROR_NUMBER() AS ErrorNumber,
+			ERROR_SEVERITY() AS ErrorSeverity,
+			ERROR_STATE() AS ErrorState,
+			ERROR_PROCEDURE() AS ErrorProcedure,
+			ERROR_LINE() AS ErrorLine,
+			ERROR_MESSAGE() AS ErrorMessage
+		END CATCH
+	END
+ELSE
+	BEGIN
+	PRINT 'null input detected, please type the right values'
+	END
+GO
+
+--Store procedure for updating customer
+CREATE PROCEDURE UpdateCustomer(@id INT, @name VARCHAR(60), @lastName VARCHAR(60), @address VARCHAR(110), @country VARCHAR(30), @city VARCHAR(30), @phone VARCHAR(10), @credit FLOAT)
+AS
+	IF(@id IS NOT NULL AND @name <> '' AND @lastName <> '' AND @address <> '' AND @country <> '' AND @city <> '' AND @phone <> '' AND @credit IS NOT NULL)
+		BEGIN
+			BEGIN TRY
+				UPDATE Customer SET Name = @name, LastName = @lastName, Address = @address, Country = @country, City = @city, Phone = @phone, Credit = @credit
+				WHERE CustomerID = @id
+				SELECT * FROM Customer
+				WHERE CustomerID = @id
+				END TRY
+		BEGIN CATCH
+			SELECT 
+			ERROR_NUMBER() AS ErrorNumber,
+			ERROR_SEVERITY() AS ErrorSeverity,
+			ERROR_STATE() AS ErrorState,
+			ERROR_PROCEDURE() AS ErrorProcedure,
+			ERROR_LINE() AS ErrorLine,
+			ERROR_MESSAGE() AS ErrorMessage
+		END CATCH
+	END
+ELSE
+	BEGIN
+	PRINT 'null input detected, please type the right values'
+	END
+GO
+
+--Store procedure for deleting customer
+CREATE PROCEDURE DeleteCustomer(@id INT)
+AS
+	IF (@id IS NOT NULL)
+		BEGIN
+			BEGIN TRY
+				DELETE Customer
+				WHERE CustomerID = @id
+				SELECT * FROM Customer
+			END TRY
+			BEGIN CATCH
+				SELECT 
+				ERROR_NUMBER() AS ErrorNumber,
+				ERROR_SEVERITY() AS ErrorSeverity,
+				ERROR_STATE() AS ErrorState,
+				ERROR_PROCEDURE() AS ErrorProcedure,
+				ERROR_LINE() AS ErrorLine,
+				ERROR_MESSAGE() AS ErrorMessage
+			END CATCH
+		END
+	ELSE
+		BEGIN
+			PRINT 'null input detected, please type the right value'
+		END
+GO
+
