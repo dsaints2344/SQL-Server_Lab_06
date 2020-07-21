@@ -35,6 +35,18 @@ CREATE TABLE [Product] (
 );
 
 
+CREATE TABLE [Customer] (
+  [CustomerID] int,
+  [Name] varchar(60),
+  [LastName] varchar(60),
+  [Address] varchar(110),
+  [Country] varchar(30),
+  [City] varchar(30),
+  [Phone] varchar(10),
+  [Credit] float,
+  PRIMARY KEY ([CustomerID])
+);
+
 CREATE TABLE [Orders] (
   [OrdersID] int,
   [CustomerID] int,
@@ -43,6 +55,7 @@ CREATE TABLE [Orders] (
   [OrderAddress] varchar(60),
   [OrderTax] float,
   [OrderTotal] float,
+  [UserID] int not null FOREIGN KEY REFERENCES [Customer]([CustomerID]),
   PRIMARY KEY ([OrdersID])
 );
 
@@ -55,21 +68,3 @@ CREATE TABLE [OrderDetails] (
   [OrderID] int not null FOREIGN KEY REFERENCES [Orders]([OrdersID]),
   PRIMARY KEY ([OrderDetailsID])
 );
-
-
-
-CREATE TABLE [Customer] (
-  [CustomerID] int,
-  [Name] varchar(60),
-  [LastName] varchar(60),
-  [Address] varchar(110),
-  [Country] varchar(30),
-  [City] varchar(30),
-  [Phone] varchar(10),
-  [Credit] float,
-  [OrderID] int FOREIGN KEY REFERENCES [Orders]([OrdersID]),
-  PRIMARY KEY ([CustomerID])
-);
-
-
-
