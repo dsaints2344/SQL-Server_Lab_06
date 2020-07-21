@@ -50,7 +50,6 @@ CREATE TABLE [Customer] (
 CREATE TABLE [Orders] (
   [OrdersID] int,
   [CustomerID] int not null FOREIGN KEY REFERENCES [Customer]([CustomerID]),
-  [OrderDetailsID] int,
   [OrderAmount] float,
   [OrderAddress] varchar(60),
   [OrderTax] float,
@@ -64,11 +63,7 @@ CREATE TABLE [OrderDetails] (
   [DetailName] varchar(50),
   [DetailPrice] float,
   [DetailQuantity] int,
+  [DetailTaxes] int, 
   [OrderID] int not null FOREIGN KEY REFERENCES [Orders]([OrdersID]),
   PRIMARY KEY ([OrderDetailsID])
 );
-
-
-ALTER TABLE Orders
-ADD CONSTRAINT FK_OrderCustomer
-FOREIGN KEY ([CustomerID]) REFERENCES [Customer]([CustomerID])
