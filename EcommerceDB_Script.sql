@@ -29,7 +29,6 @@ CREATE TABLE [ProductDetails] (
 CREATE TABLE [Product] (
   [ProductID] int,
   [ProductName] varchar(100),
-  [CategoryID] int,
   [ProductDetailsID] int not null UNIQUE FOREIGN KEY REFERENCES [ProductDetails]([ProductDetailsID]),
   [ProductCategoryID] int not null FOREIGN KEY REFERENCES [Category]([CategoryID]), 
   PRIMARY KEY ([ProductID])
