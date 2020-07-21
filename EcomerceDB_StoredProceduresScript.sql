@@ -82,7 +82,7 @@ AS
 IF (@id IS NOT NULL AND @name <> '' AND @categoryId IS NOT NULL AND @productDetailsId IS NOT NULL)
 	BEGIN
 		BEGIN TRY
-			INSERT INTO Product (ProductID, ProductName, ProductDetailsID, CategoryID) VALUES(@id, @name, @ProductDetailsID, @categoryId)
+			INSERT INTO Product (ProductID, ProductName, ProductDetailsID, ProductCategoryID) VALUES(@id, @name, @ProductDetailsID, @categoryId)
 			SELECT * FROM Product
 		END TRY
 		BEGIN CATCH
@@ -107,7 +107,7 @@ AS
 IF (@id IS NOT NULL AND @name <> '' AND @categoryId IS NOT NULL AND @productDetailsId IS NOT NULL)
 	BEGIN
 		BEGIN TRY
-			UPDATE Product SET ProductName = @name, CategoryID = @categoryId, ProductDetailsID = @productDetailsId
+			UPDATE Product SET ProductName = @name, ProductCategoryID = @categoryId, ProductDetailsID = @productDetailsId
 			WHERE ProductID = @id
 			SELECT * FROM Product
 			WHERE ProductID = @id
